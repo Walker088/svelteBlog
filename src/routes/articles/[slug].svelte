@@ -1,0 +1,62 @@
+<script context="module">
+    export async function load({ params, fetch }) {
+        const { slug } = params;
+        const res = await fetch(`/api/articles/${slug}.json`);
+        if (res.ok) {
+			const article = await res.json().then(data => data.article);
+            return {
+                props: {
+                    article,
+                },
+            };
+        }
+        return {
+            status: res.status,
+            error: "Post not found"
+        };
+    }
+</script>
+
+<script>
+    import { session } from '$app/stores';
+    import showdown from 'showdown';
+    import dayjs from 'dayjs'
+	import utc from 'dayjs/plugin/utc'
+	import tz from 'dayjs/plugin/timezone'
+	dayjs.extend(utc);
+	dayjs.extend(tz);
+
+    export let article;
+    const markdownCvt = new showdown.Converter();
+    const badegeOpts = ["bg-primary", "bg-success", "bg-danger", "bg-warning"];
+</script>
+
+<svelte:head>
+	<title>{article.post_title}</title>
+	<meta name="description" content="{article.post_title}, {article.post_sub_title}" />
+    <meta name="author" content="walker088" />
+</svelte:head>
+
+<div class="container">
+    <article>
+        <div class="post-header">
+            <div class="d-flex flex-row justify-content-between">
+                <h1 class="fw-bold">{article.post_title}</h1>
+                {#if $session.user} <a href="/auth/editor/{article.post_id}"><i class="bi bi-pencil-square fs-2"></i></a> {/if}
+            </div>
+            <div class="d-flex flex-row">
+                <h2 class="fs-5 fw-light text-muted">{article.post_sub_title}</h2>
+                <div class="ms-2">{#each JSON.parse(article.tags) as tag, idx} <span class="badge {badegeOpts[idx % badegeOpts.length]} mx-1 mb-2">{tag}</span> {/each}</div>
+            </div>
+            <div>
+                <p><small><em>{dayjs.utc(article.post_time).tz(dayjs.tz.guess()).format('YYYY-MM-DD HH:mm:ss')}</em></small></p>
+            </div>
+        </div>
+        <div class="post-image"><img src="{article.post_img}" class="card-img-top post-image" alt="..."></div>
+        <div class="post-content mt-4">{@html markdownCvt.makeHtml(article.post_content)}</div>
+    </article>
+</div>
+
+<style>
+
+</style>

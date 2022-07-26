@@ -1,0 +1,98 @@
+body {
+	overflow: scroll;
+}
+
+:root {
+	--bs-danger: #e92228;
+	--bs-warning: gold;
+	--bs-success: green;
+}
+
+.site {
+	display: flex;
+	min-height: 98vh;
+	flex-direction: column;
+}
+
+.site-content {
+	flex: 1;
+}
+
+.btn-danger,
+.alert-danger {
+	background-color: var(--bs-danger);
+}
+
+.btn-warning,
+.alert-warning {
+	background-color: var(--bs-warning);
+}
+
+.btn-success,
+.alert-success {
+	background-color: var(--bs-success);
+}
+
+.alert-danger {
+	color: white;
+	border-color: var(--bs-danger);
+}
+
+.alert-warning {
+	color: #333;
+	border-color: var(--bs-warning)
+}
+
+.alert-success {
+	color: white;
+	border-color: var(--bs-success)
+}
+
+div.multiselect {
+	/* top-level wrapper div */
+	background: white;
+	color: black;
+}
+div.multiselect > ul.options {
+	/* dropdown options */
+	background: white;
+}
+
+
+@media all {
+	body.dark {
+		background: #2B2A32;
+		color: white;
+	}
+
+	body.dark .card {
+		background: #42414C;
+		border-color: #4d4d4d;
+	}
+
+	body.dark .card-body {
+		color: white;
+	}
+
+	body.dark .bg-white,
+	body.dark .bg-light {
+		background: #212020 !important;
+	}
+
+	body.dark .card-footer a,
+	body.dark .text-black-50 {
+		color: gray !important;
+	}
+
+	body.dark .page-link {
+		background: #42414c;
+		border-color: #42414c;
+	}
+
+	body.dark .disabled>.page-link {
+		background: #565656;
+		border-color: #565656;
+		color: #444;
+	}
+
+}
