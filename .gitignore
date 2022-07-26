@@ -1,0 +1,13 @@
+.DS_Store
+./static/post_imgs
+node_modules
+/build
+/.svelte-kit
+/package
+.env
+.env.*
+!.env.example
+.vercel
+.output
+.vscode
+*.db
