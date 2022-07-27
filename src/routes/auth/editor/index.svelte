@@ -23,6 +23,7 @@
 <script>
 	import { goto } from '$app/navigation';
 
+	import { md5 } from 'hash-wasm';
 	import MultiSelect from 'svelte-multiselect'
 	import Swal from 'sweetalert2';
 	import hljs from "highlight.js";
@@ -55,18 +56,6 @@
   		];
 	});
 	const markdownCvt = new showdown.Converter({extensions: ['codehighlight']});
-	const sha256 = async (message) => {
-    	// encode as UTF-8
-    	const msgBuffer = new TextEncoder().encode(message);
-    	// hash the message
-    	const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-    	// convert ArrayBuffer to Array
-    	const hashArray = Array.from(new Uint8Array(hashBuffer));
-    	// convert bytes to hex string                  
-    	const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-    	return hashHex;
-	};
-	const updateImageName = async () => post_img_name = `${await sha256(post_img_file[0])}.webp`;
 	const handleTab = (event) => {
 		if (event.key === "Tab") {
 			event.preventDefault();
@@ -78,6 +67,17 @@
 		};
 	};
 	async function handleSubmit() {
+		const generateImageHash = (file) => {
+			const fileReader = new FileReader();
+			return new Promise((resolve, reject) => {
+				fileReader.onload = async function(e) {
+  					const contents = new Uint8Array(e.target.result);
+					const imageHash = await md5(contents);
+					resolve(`${imageHash}.webp`);
+				};
+				fileReader.readAsBinaryString(file);
+			});
+		};
 		const validateForm = () => {
 			["post_title", "post_sub_title", "post_tags", "post_langs", "post_status_div", "post_img_name"]
 				.forEach(ele => document.querySelector(`#${ele}`).classList.remove("border", "border-danger", "border-3"));
@@ -104,6 +104,8 @@
 		};
 		if (!validateForm()) return;
 		let newArticle = new FormData();
+		post_img_name = await generateImageHash(post_img_file[0]).then(hash => hash);
+
 		newArticle.append("post_title", post_title);
 		newArticle.append("post_sub_title", post_sub_title);
 		newArticle.append("post_serie", post_serie);
@@ -166,7 +168,7 @@
 					<label class="btn btn-sm btn-primary" for="post_img">
 						<i class="bi bi-cloud-arrow-up-fill"></i> Upload Post Image
 					</label>
-					<input on:change={updateImageName} bind:files={post_img_file} class="d-none" type="file" id="post_img" accept=".webp, .jpeg, .jpg, .png">
+					<input bind:files={post_img_file} class="d-none" type="file" id="post_img" accept=".webp, .jpeg, .jpg, .png">
 					<small id="post_img_name" class="align-bottom text-secondary">{post_img_file.length > 0 ? post_img_file[0].name : "No image has been selected yet"}</small>
 				</div>
 				<input bind:value={post_title} id="post_title" placeholder="Post Title" class="form-control form-control-sm mb-2" />

@@ -44,7 +44,12 @@ export async function post(event) {
 	} catch(err) {
 		return {status: 401, body: { error: err} };
 	}
-    const genPostId = async () => {
+    const isPostTitleExists = async (title) => {
+        const query = "SELECT COUNT(a.post_id) AS ext FROM articales a WHERE UPPER(REPLACE(a.post_title, ' ', '')) == UPPER(REPLACE(?, ' ', ''))";
+        const resp = await db.prepare(query).get(title);
+        return resp.ext > 0;
+    };
+    const genNewPostId = async () => {
         const resp = await db.prepare("SELECT COUNT(a.post_id) + 1 AS last_post_id FROM articales a").get();
         return `P${resp.last_post_id.toString().padStart(8, "0")}`;
     };
@@ -52,7 +57,10 @@ export async function post(event) {
     try {
         // Save article to db
         let newArticle = await request.formData().then(d => Object.fromEntries(d));
-        newArticle.post_id = await genPostId();
+        if (await isPostTitleExists(newArticle.post_title)) {
+            return {status: 400, body: { error: "Duplicated Post Title" } };
+        };
+        newArticle.post_id = await genNewPostId();
         newArticle.post_tags = newArticle.post_tags.split(",");
         newArticle.post_langs = newArticle.post_langs.split(",");
         newArticle.post_img = `/post_imgs/${newArticle.post_id}/${newArticle.post_img_name}`;
@@ -85,7 +93,7 @@ export async function post(event) {
         const imgArrayBuffer = await newArticle.image.arrayBuffer();
         fs.mkdir(`./static/post_imgs/${newArticle.post_id}`, { recursive: true });
         await sharp(Buffer.from(imgArrayBuffer))
-			.resize({ width: 315, height: 110 })
+			.resize({ width: 315, height: 110, fit: "contain" })
 			.webp()
 			.toFile(`./static/post_imgs/${newArticle.post_id}/${newArticle.post_img_name}`);
         return {
