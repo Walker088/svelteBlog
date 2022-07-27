@@ -21,6 +21,8 @@
 </script>
 
 <script>
+	import { goto } from '$app/navigation';
+
 	import MultiSelect from 'svelte-multiselect'
 	import Swal from 'sweetalert2';
 	import hljs from "highlight.js";
@@ -77,7 +79,7 @@
 	};
 	async function handleSubmit() {
 		const validateForm = () => {
-			["post_title", "post_sub_title", "post_tags", "post_langs", "post_status_div"]
+			["post_title", "post_sub_title", "post_tags", "post_langs", "post_status_div", "post_img_name"]
 				.forEach(ele => document.querySelector(`#${ele}`).classList.remove("border", "border-danger", "border-3"));
 
             let inValidList = [];
@@ -86,6 +88,7 @@
 			if (post_tags.length < 1) inValidList.push("post_tags");
 			if (post_langs.length < 1) inValidList.push("post_langs");
 			if (!post_status) inValidList.push("post_status_div");
+			if (post_img_file.length < 1) inValidList.push("post_img_name");
             if (inValidList.length > 0) {
                 Swal.fire({
                     icon: 'error',
@@ -99,40 +102,35 @@
             }
             return true;
 		};
-		const uploadImg = async (created_post_id) => {
-			if (post_img_file.length < 1) return;
-			debugger;
-			let img = new FormData();
-			img.append("post_id", created_post_id);
-			img.append("img_name", post_img_name);
-			img.append("image", post_img_file[0]);
-			return fetch('/api/auth/article_image', {
-    			method: 'POST',
-    			body: img
-  			});
-		};
-		debugger;
 		if (!validateForm()) return;
-		const url = "/api/auth/articles";
-        const method = "POST";
-        const headers = {"content-type": "application/json"};
-        const body = JSON.stringify({post_title, post_sub_title, post_serie, post_img_name, post_tags, post_langs, post_status, post_content});
-        const response = await fetch(url, {method, headers, body});
+		let newArticle = new FormData();
+		newArticle.append("post_title", post_title);
+		newArticle.append("post_sub_title", post_sub_title);
+		newArticle.append("post_serie", post_serie);
+		newArticle.append("post_tags", post_tags);
+		newArticle.append("post_langs", post_langs);
+		newArticle.append("post_status", post_status);
+		newArticle.append("post_content", post_content);
+		newArticle.append("post_img_name", post_img_name);
+		newArticle.append("image", post_img_file[0]);
+		const response = await fetch('/api/auth/articles', {
+    		method: 'POST',
+    		body: newArticle
+  		});
+		if(response.status === 401) goto(`/login`);
 		if(response.status === 200) {
 			const created_post_id = await response.json().then(data => data.post_id);
-			await uploadImg(created_post_id).then(() => {
-				Swal.fire({
-					icon: 'success',
-					title: 'Successed!',
-					didClose: () => goto(`/auth/editor/${created_post_id}`)
-				});
+			Swal.fire({
+				icon: 'success',
+				title: 'Successed!',
+				didClose: () => goto(`/auth/editor/${created_post_id}`)
 			});
         } else {
 			const error = await response.json().then(data => data.error);
 			Swal.fire({
                 icon: 'error',
                 title: 'Oops...',
-                text: error,
+                text: JSON.stringify(error),
             });
 		}
 	};

@@ -1,7 +1,6 @@
 import db from "$lib/db/sqlite.js"
 
 export async function get() {
-    debugger;
     const query = `
     SELECT
 	    a.post_id,
