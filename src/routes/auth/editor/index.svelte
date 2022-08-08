@@ -7,7 +7,7 @@
 				redirect: '/login'
 			};
 		}
-		const res = await fetch("/api/auth/articles");
+		const res = await fetch("/api/auth/articles/meta.json");
 		const {tags, series, langs} = await res.json().then(data => 
 			({
 				"tags": JSON.parse(data.tags), 
@@ -24,7 +24,7 @@
 	import { goto } from '$app/navigation';
 
 	import { md5 } from 'hash-wasm';
-	import MultiSelect from 'svelte-multiselect'
+	import MultiSelect from 'svelte-multiselect';
 	import Swal from 'sweetalert2';
 	import hljs from "highlight.js";
 	import showdown from 'showdown';

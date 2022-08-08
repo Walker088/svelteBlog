@@ -1,11 +1,15 @@
 import db from "$lib/db/sqlite.js"
-import * as cookie from 'cookie';
-import jwt from 'jsonwebtoken'
+import * as cookie from "cookie";
+import jwt from "jsonwebtoken"
 import sharp from "sharp";
 
-import * as fs from 'fs/promises';
+import * as fs from "fs/promises";
 
-export async function get( {request} ) {
+export async function get( {request, query} ) {
+    const post_id = query.get("post_id");
+    if (!post_id) {
+        return {status: 400, body: { error: "Please provide the post_id"} };
+    }
     const cookies = cookie.parse(request.headers.get('cookie') || '');
     if (!cookies.jwt) {
         return {status: 401, body: { error: "There is no jwt cookie"} };
@@ -16,19 +20,37 @@ export async function get( {request} ) {
 		return {status: 401, body: { error: err} };
 	}
 
-    const query = `
+    const metaInfoQuery = `
     SELECT
 	    (SELECT json_group_array (tag_name) FROM tags ORDER BY tag_name) tags,
 	    (SELECT json_group_array (lang_name) FROM langs ORDER BY lang_name) langs,
 	    (SELECT json_group_array (serie_name) FROM series ORDER BY serie_name) series;
     `;
-    const resp = await db.prepare(query).get();
-    const {tags, series, langs} = resp;
+    const articleQuery = `
+    SELECT
+	    a.post_id,
+	    a.post_title,
+	    a.post_sub_title,
+	    a.post_serie,
+	    a.post_img,
+	    (SELECT json_group_array(tag_name) FROM articales_tags WHERE post_id = a.post_id ORDER BY tag_name) tags,
+	    (SELECT json_group_array(lang_name) FROM articales_langs WHERE post_id = a.post_id ORDER BY lang_name) languages,
+	    COALESCE(a.updated_time, a.created_time) post_time,
+        a.post_content
+    FROM articales a
+    WHERE a.post_id = ? AND a.post_status = 'PT'
+    GROUP BY a.post_id
+    ORDER BY a.created_time DESC
+    `;
+    const metaInfoResp = await db.prepare(metaInfoQuery).get();
+    const {tags, series, langs} = metaInfoResp;
+    const article = await db.prepare(articleQuery).get(post_id);
     return {
         body: {
             tags,
             langs,
-            series
+            series,
+            article
         }
     }
 };
