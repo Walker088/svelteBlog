@@ -10,9 +10,9 @@
 		const res = await fetch("/api/auth/articles/meta.json");
 		const {tags, series, langs} = await res.json().then(data => 
 			({
-				"tags": JSON.parse(data.tags), 
-				"series": JSON.parse(data.series), 
-				"langs": JSON.parse(data.langs)
+				"tags": data.tags,
+				"series": data.series,
+				"langs": data.langs
 			}));
 		return {
 			props: { tags, series, langs }
@@ -23,7 +23,7 @@
 <script>
 	import { goto } from '$app/navigation';
 
-	import { md5 } from 'hash-wasm';
+	import { createMD5 } from 'hash-wasm';
 	import MultiSelect from 'svelte-multiselect';
 	import Swal from 'sweetalert2';
 	import hljs from "highlight.js";
@@ -67,16 +67,30 @@
 		};
 	};
 	async function handleSubmit() {
-		const generateImageHash = (file) => {
+		const generateImageHash = async (file) => {
+			let hasher = await createMD5();
+			const chunkSize = 64 * 1024 * 1024;
+			const chunkNumber = Math.floor(file.size / chunkSize);
 			const fileReader = new FileReader();
-			return new Promise((resolve, reject) => {
-				fileReader.onload = async function(e) {
-  					const contents = new Uint8Array(e.target.result);
-					const imageHash = await md5(contents);
-					resolve(`${imageHash}.webp`);
-				};
-				fileReader.readAsBinaryString(file);
-			});
+			const hashChunk = (chunk) => {
+				return new Promise((resolve, reject) => {
+    				fileReader.onload = async(e) => {
+    				  	const view = new Uint8Array(e.target.result);
+    				  	hasher.update(view);
+    				  	resolve();
+    				};
+    				fileReader.readAsArrayBuffer(chunk);
+  				});
+			};
+			for (let i = 0; i <= chunkNumber; i++) {
+    			const chunk = file.slice(
+      				chunkSize * i,
+      				Math.min(chunkSize * (i + 1), file.size)
+    			);
+    			await hashChunk(chunk);
+  			}
+			const hash = `${hasher.digest()}`;
+			return Promise.resolve(hash);
 		};
 		const validateForm = () => {
 			["post_title", "post_sub_title", "post_tags", "post_langs", "post_status_div", "post_img_name"]
@@ -105,7 +119,7 @@
 		if (!validateForm()) return;
 		let newArticle = new FormData();
 		post_img_name = await generateImageHash(post_img_file[0]).then(hash => hash);
-
+		debugger;
 		newArticle.append("post_title", post_title);
 		newArticle.append("post_sub_title", post_sub_title);
 		newArticle.append("post_serie", post_serie);
@@ -137,9 +151,9 @@
 		}
 	};
 
-	export let series;
-	export let tags;
-	export let langs;
+	export let series = [];
+	export let tags = [];
+	export let langs = [];
 	let post_img_file = [];
 
 	let post_title = "";

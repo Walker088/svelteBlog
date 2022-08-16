@@ -14,7 +14,7 @@ export async function get(event) {
     // Verify the current jwt token and extract the encoded data from it
     let payload;
     try {
-		payload = jwt.verify(cookies.jwt, import.meta.env.VITE_JWT_SECRET);
+		payload = jwt.verify(cookies.jwt, import.meta.env.VITE_JWT_ACCESS_SECRET);
 	} catch(err) {
 		return {status: 401, body: { error: err} };
 	}
@@ -24,7 +24,7 @@ export async function get(event) {
         return {status: 200, body: { success: true, message: "The current token has not about to been expired yet"} };
     }
 
-    const newToken = jwt.sign(locals.user, import.meta.env.VITE_JWT_SECRET, {
+    const newToken = jwt.sign(locals.user, import.meta.env.VITE_JWT_ACCESS_SECRET, {
 		algorithm: "HS256",
 		expiresIn: import.meta.env.VITE_JWT_EXPIRY_SEC,
 	});

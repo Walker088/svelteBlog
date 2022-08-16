@@ -1,6 +1,6 @@
 <script context="module">
     export const router = false // disabling client side router to run handleSession in hooks
-    export async function load({ params, fetch }) {
+    export async function load({ params, fetch, session }) {
         if (!session.user) {
 			return {
 				status: 302,
@@ -11,13 +11,13 @@
         const { slug } = params;
         const res = await fetch(`/api/auth/articles?post_id=${slug}`);
         if (res.ok) {
-			const articleInfo = await res.json().then(data => data.article);
+			let res_data = await res.json().then(data => data);
             return {
                 props: {
-                    tags: articleInfo.tags,
-                    langs: articleInfo.langs,
-                    series: articleInfo.series,
-                    article: articleInfo.article,
+                    tags: res_data.tags,
+                    langs: res_data.langs,
+                    series: res_data.series,
+                    article: res_data.article,
                 },
             };
         }
@@ -29,7 +29,7 @@
 </script>
 
 <script>
-    import { md5 } from 'hash-wasm';
+    import { createMD5 } from 'hash-wasm';
 	import MultiSelect from 'svelte-multiselect';
 	import Swal from 'sweetalert2';
 	import hljs from "highlight.js";
@@ -72,25 +72,100 @@
 			textArea.selectionStart = textArea.selectionEnd = start + 4;
 		};
 	};
-    async function handleUpdatePost() {};
+    async function handleUpdatePost() {
+		const generateImageHash = async (file) => {
+			let hasher = await createMD5();
+			const chunkSize = 64 * 1024 * 1024;
+			const chunkNumber = Math.floor(file.size / chunkSize);
+			const fileReader = new FileReader();
+			const hashChunk = (chunk) => {
+				return new Promise((resolve, reject) => {
+    				fileReader.onload = async(e) => {
+    				  	const view = new Uint8Array(e.target.result);
+    				  	hasher.update(view);
+    				  	resolve();
+    				};
+    				fileReader.readAsArrayBuffer(chunk);
+  				});
+			};
+			for (let i = 0; i <= chunkNumber; i++) {
+    			const chunk = file.slice(
+      				chunkSize * i,
+      				Math.min(chunkSize * (i + 1), file.size)
+    			);
+    			await hashChunk(chunk);
+  			}
+			const hash = `${hasher.digest()}`;
+			return Promise.resolve(hash);
+		};
+		const validateForm = () => {
+			["post_title", "post_sub_title", "post_tags", "post_langs", "post_status_div", "post_img_name"]
+				.forEach(ele => document.querySelector(`#${ele}`).classList.remove("border", "border-danger", "border-3"));
+
+            let inValidList = [];
+            if (!article.post_title) inValidList.push("post_title");
+            if (!article.post_sub_title) inValidList.push("post_sub_title");
+			if (article.post_tags.length < 1) inValidList.push("post_tags");
+			if (article.post_langs.length < 1) inValidList.push("post_langs");
+			if (!article.post_status) inValidList.push("post_status_div");
+            if (inValidList.length > 0) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: `Please put the ${inValidList.join(", ")}!`,
+                    didOpen: () => {
+                        inValidList.forEach(ele => document.querySelector(`#${ele}`).classList.add("border", "border-danger", "border-3"));
+                    }
+                });
+                return false;
+            }
+            return true;
+		};
+		if (!validateForm()) return;
+		let newArticle = new FormData();
+		if (post_img_file.length > 0) {
+			const img_name = await generateImageHash(post_img_file[0]).then(hash => hash);
+			article.post_img = `/post_imgs/${article.post_id}/${img_name}`;
+			newArticle.append("image", post_img_file[0]);
+		}
+		newArticle.append("article", JSON.stringify(article));
+		const response = await fetch('/api/auth/articles', {
+    		method: 'PUT',
+    		body: newArticle
+  		});
+		if(response.status === 401) goto(`/login`);
+		if(response.status === 200) {
+			article = await response.json().then(data => data.article);
+			Swal.fire({
+				icon: 'success',
+				title: 'Successed!'
+			});
+        } else {
+			const error = await response.json().then(data => data.error);
+			Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: JSON.stringify(error),
+            });
+		}
+	};
 
     let post_img_file = [];
-    export let tags;
-    export let langs;
-    export let series;
-    export let article;
-
+    export let tags = [];
+    export let langs = [];
+    export let series = [];
+    export let article = {};
     $: post_content_rendered = markdownCvt.makeHtml(article.post_content);
 </script>
 
 <svelte:head>
-	<title>Edit {article.post_title}</title>
+	<title>Edit: {article.post_title}</title>
 	<meta name="description" content="Edition, {article.post_title}" />
 </svelte:head>
 
 <form on:submit|preventDefault={handleUpdatePost}>
 	<div class="card mb-2">
-		<div class="card-header"><i class="bi bi-mailbox me-2"></i>Create a new post</div>
+		<div class="card-header"><i class="bi bi-mailbox me-2"></i>Update Post ({article.post_id})</div>
 		<div class="card-body">
 			<div class="form-outline d-flex flex-column border-bottom mb-3">
 				<div class="mb-2">
@@ -137,6 +212,7 @@
 					</div>
 				</div>
 			</div>
+			<div class="post-image"><img src="{article.post_img}.lg.webp" class="card-img-top post-image" alt="..."></div>
 			<div class="markdown-editor d-flex flex-column flex-lg-row justify-content-between">
 				<div class="markdown-editor__panel">
 					<textarea class="markdown-editor__textarea" bind:value={article.post_content} on:keydown={handleTab}/>

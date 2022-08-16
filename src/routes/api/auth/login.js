@@ -24,7 +24,7 @@ export async function post({ request }) {
 
 	const token = jwt.sign(
 		{ "user_id": user_id, "profile_img": saved_user.profile_img || "" },
-		import.meta.env.VITE_JWT_SECRET,
+		import.meta.env.VITE_JWT_ACCESS_SECRET,
 		{
 			algorithm: "HS256",
 			expiresIn: parseInt(import.meta.env.VITE_JWT_EXPIRY_SEC),

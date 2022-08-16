@@ -5,8 +5,38 @@ import sharp from "sharp";
 
 import * as fs from "fs/promises";
 
-export async function get( {request, query} ) {
-    const post_id = query.get("post_id");
+const IMG_WIDTH_SM = 315;
+const IMG_HEIGHT_SM = 110;
+const IMG_WIDTH_LG = 1890;
+const IMG_HEIGHT_LG = 660;
+
+const getArticleById = async (post_id) => {
+    const articale = await db.prepare(
+        `SELECT
+            a.post_id,
+            a.post_title,
+            a.post_sub_title,
+            a.post_serie,
+            a.post_img,
+            (SELECT json_group_array(tag_name) FROM articales_tags WHERE post_id = a.post_id ORDER BY tag_name) post_tags,
+            (SELECT json_group_array(lang_name) FROM articales_langs WHERE post_id = a.post_id ORDER BY lang_name) post_langs,
+            COALESCE(a.updated_time, a.created_time) post_time,
+            a.post_content,
+            a.post_status
+        FROM articales a
+        WHERE a.post_id = ?
+        GROUP BY a.post_id
+        ORDER BY a.created_time DESC`).get(post_id);
+    if (articale) {
+        articale.post_tags = JSON.parse(articale.post_tags);
+        articale.post_langs = JSON.parse(articale.post_langs);
+    }
+    return articale;
+};
+
+export async function get( {request, url} ) {
+    //const post_id = query.get("post_id");
+    const post_id = new URL(url).searchParams.get("post_id");
     if (!post_id) {
         return {status: 400, body: { error: "Please provide the post_id"} };
     }
@@ -15,7 +45,7 @@ export async function get( {request, query} ) {
         return {status: 401, body: { error: "There is no jwt cookie"} };
     }
     try {
-		jwt.verify(cookies.jwt, import.meta.env.VITE_JWT_SECRET);
+		jwt.verify(cookies.jwt, import.meta.env.VITE_JWT_ACCESS_SECRET);
 	} catch(err) {
 		return {status: 401, body: { error: err} };
 	}
@@ -26,25 +56,11 @@ export async function get( {request, query} ) {
 	    (SELECT json_group_array (lang_name) FROM langs ORDER BY lang_name) langs,
 	    (SELECT json_group_array (serie_name) FROM series ORDER BY serie_name) series;
     `;
-    const articleQuery = `
-    SELECT
-	    a.post_id,
-	    a.post_title,
-	    a.post_sub_title,
-	    a.post_serie,
-	    a.post_img,
-	    (SELECT json_group_array(tag_name) FROM articales_tags WHERE post_id = a.post_id ORDER BY tag_name) tags,
-	    (SELECT json_group_array(lang_name) FROM articales_langs WHERE post_id = a.post_id ORDER BY lang_name) languages,
-	    COALESCE(a.updated_time, a.created_time) post_time,
-        a.post_content
-    FROM articales a
-    WHERE a.post_id = ? AND a.post_status = 'PT'
-    GROUP BY a.post_id
-    ORDER BY a.created_time DESC
-    `;
     const metaInfoResp = await db.prepare(metaInfoQuery).get();
-    const {tags, series, langs} = metaInfoResp;
-    const article = await db.prepare(articleQuery).get(post_id);
+    const tags = JSON.parse(metaInfoResp.tags);
+    const langs = JSON.parse(metaInfoResp.langs);
+    const series = JSON.parse(metaInfoResp.series);
+    const article = await getArticleById(post_id);
     return {
         body: {
             tags,
@@ -62,7 +78,7 @@ export async function post(event) {
         return {status: 401, body: { error: "There is no jwt cookie"} };
     }
     try {
-		jwt.verify(cookies.jwt, import.meta.env.VITE_JWT_SECRET);
+		jwt.verify(cookies.jwt, import.meta.env.VITE_JWT_ACCESS_SECRET);
 	} catch(err) {
 		return {status: 401, body: { error: err} };
 	}
@@ -87,7 +103,7 @@ export async function post(event) {
         newArticle.post_langs = newArticle.post_langs.split(",");
         newArticle.post_img = `/post_imgs/${newArticle.post_id}/${newArticle.post_img_name}`;
         newArticle.created_user = locals.user.user_id;
-        const insertPostQuery = `
+        const insertPostStmt = db.prepare(`
         INSERT INTO articales (
             post_id,
             post_title,
@@ -100,8 +116,7 @@ export async function post(event) {
             created_user
         )
         VALUES (@post_id, @post_title, @post_sub_title, @post_serie, @post_img, @post_status, @post_content, DATETIME('now'), @created_user)
-        `;
-        const insertPostStmt = db.prepare(insertPostQuery);
+        `);
         const insertTagsStmt = db.prepare(`INSERT INTO articales_tags (post_id, tag_name) VALUES (@post_id, @tag_name);`);
         const insertLangsStmt = db.prepare(`INSERT INTO articales_langs (post_id, lang_name) VALUES (@post_id, @lang_name);`);
         const insertPostTx = db.transaction((post) => {
@@ -115,9 +130,13 @@ export async function post(event) {
         const imgArrayBuffer = await newArticle.image.arrayBuffer();
         fs.mkdir(`./static/post_imgs/${newArticle.post_id}`, { recursive: true });
         await sharp(Buffer.from(imgArrayBuffer))
-			.resize({ width: 315, height: 110, fit: "contain" })
-			.webp()
-			.toFile(`./static/post_imgs/${newArticle.post_id}/${newArticle.post_img_name}`);
+		    	.resize({ width: IMG_WIDTH_SM, height: IMG_HEIGHT_SM, fit: "contain" })
+		    	.webp()
+		    	.toFile(`static/post_imgs/${newArticle.post_id}/${newArticle.post_img_name}.sm.webp`);
+        await sharp(Buffer.from(imgArrayBuffer))
+		    	.resize({ width: IMG_WIDTH_LG, height: IMG_HEIGHT_LG, fit: "contain" })
+		    	.webp()
+		    	.toFile(`static/post_imgs/${newArticle.post_id}/${newArticle.post_img_name}.lg.webp`);
         return {
             body: {status: "success", message: `Successfully inserted ${newArticle}`, post_id: newArticle.post_id}
         }
@@ -133,16 +152,65 @@ export async function put(event) {
         return {status: 401, body: { error: "There is no jwt cookie"} };
     }
     try {
-		jwt.verify(cookies.jwt, import.meta.env.VITE_JWT_SECRET);
+		jwt.verify(cookies.jwt, import.meta.env.VITE_JWT_ACCESS_SECRET);
 	} catch(err) {
 		return {status: 401, body: { error: err} };
 	}
+    const isPostTitleExists = async (title, post_id) => {
+        const query = "SELECT COUNT(a.post_id) AS ext FROM articales a WHERE UPPER(REPLACE(a.post_title, ' ', '')) == UPPER(REPLACE(@post_title, ' ', '')) AND a.post_id <> @post_id";
+        const resp = await db.prepare(query).get({post_title: title, post_id: post_id});
+        return resp.ext > 0;
+    };
 
-    const updatedArticle = await request.json();
-    const updateQuery = `
-    UPDATE articales 
-    SET post_serie = ?, post_img = ?, post_status = ?, post_content = ?, updated_time = DATETIME('now'), created_user = ?
-    WHERE post_id = ?
-    `;
-    await db.prepare(updateQuery).run(updatedArticle);
+    try {
+        const newArticle = await request.formData().then(d => Object.fromEntries(d));
+        let articleInfo = JSON.parse(newArticle.article);
+        if (await isPostTitleExists(articleInfo.post_title, articleInfo.post_id)) {
+            return {status: 400, body: { error: "Duplicated Post Title" } };
+        };
+        articleInfo.created_user = locals.user.user_id;
+        const updateArticleStmt = db.prepare(`
+            UPDATE 
+                articales 
+            SET 
+                post_serie = @post_serie,
+                post_img = @post_img, 
+                post_status = @post_status, 
+                post_content = @post_content, 
+                updated_time = DATETIME('now'), 
+                created_user = @created_user
+            WHERE post_id = @post_id
+        `);
+        const dropOrgTagsStmt = db.prepare(`DELETE FROM articales_tags WHERE post_id = @post_id;`);
+        const dropOrgLangsStmt = db.prepare(`DELETE FROM articales_langs WHERE post_id = @post_id; `);
+        const insertTagsStmt = db.prepare(`INSERT INTO articales_tags (post_id, tag_name) VALUES (@post_id, @tag_name);`);
+        const insertLangsStmt = db.prepare(`INSERT INTO articales_langs (post_id, lang_name) VALUES (@post_id, @lang_name);`);
+        const updatePostTx = db.transaction((post) => {
+            updateArticleStmt.run(post);
+            dropOrgTagsStmt.run({post_id: post.post_id});
+            dropOrgLangsStmt.run({post_id: post.post_id});
+            for (const tag of post.post_tags) insertTagsStmt.run({post_id: post.post_id, tag_name: tag});
+            for (const lang of post.post_langs) insertLangsStmt.run({post_id: post.post_id, lang_name: lang});
+        });
+        updatePostTx(articleInfo);
+        debugger
+        if (newArticle.image) {
+            const imgArrayBuffer = await newArticle.image.arrayBuffer();
+            await fs.rm(`static/post_imgs/${articleInfo.post_id}`, {recursive: true, force: true});
+            await fs.mkdir(`static/post_imgs/${articleInfo.post_id}`, { recursive: true });
+            await sharp(Buffer.from(imgArrayBuffer))
+		    	.resize({ width: 315, height: 110, fit: "contain" })
+		    	.webp()
+		    	.toFile(`static/${articleInfo.post_img}.sm.webp`);
+            await sharp(Buffer.from(imgArrayBuffer))
+		    	.resize({ width: 945, height: 330, fit: "contain" })
+		    	.webp()
+		    	.toFile(`static/${articleInfo.post_img}.lg.webp`);
+        }
+        return {
+            body: {status: "success", message: `Successfully inserted ${newArticle}`, article: await getArticleById(articleInfo.post_id)}
+        }
+    } catch (err) {
+        return {status: 400, body: { error: err } };
+    }
 }

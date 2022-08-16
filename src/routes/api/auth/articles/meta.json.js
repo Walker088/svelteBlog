@@ -8,7 +8,7 @@ export async function get( {request} ) {
         return {status: 401, body: { error: "There is no jwt cookie"} };
     }
     try {
-		jwt.verify(cookies.jwt, import.meta.env.VITE_JWT_SECRET);
+		jwt.verify(cookies.jwt, import.meta.env.VITE_JWT_ACCESS_SECRET);
 	} catch(err) {
 		return {status: 401, body: { error: err} };
 	}
@@ -19,8 +19,12 @@ export async function get( {request} ) {
 	    (SELECT json_group_array (lang_name) FROM langs ORDER BY lang_name) langs,
 	    (SELECT json_group_array (serie_name) FROM series ORDER BY serie_name) series;
     `;
-    const resp = await db.prepare(query).get();
-    const {tags, series, langs} = resp;
+    //const resp = await db.prepare(query).get();
+    //const {tags, series, langs} = resp;
+    const metaInfoResp = await db.prepare(query).get();
+    const tags = JSON.parse(metaInfoResp.tags);
+    const langs = JSON.parse(metaInfoResp.langs);
+    const series = JSON.parse(metaInfoResp.series);
     return {
         body: {
             tags,
