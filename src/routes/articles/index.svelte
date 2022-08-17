@@ -26,8 +26,8 @@
 	import MultiSelect from 'svelte-multiselect'
 
 	import dayjs from 'dayjs'
-	import utc from 'dayjs/plugin/utc'
-	import tz from 'dayjs/plugin/timezone'
+	import utc from 'dayjs/plugin/utc.js'
+	import tz from 'dayjs/plugin/timezone.js'
 	dayjs.extend(utc);
 	dayjs.extend(tz);
 
