@@ -3,6 +3,7 @@
 	import { session } from '$app/stores';
 
 	import DarkModeToggle from "$lib/themes/DarkModeToggle.svelte";
+	export let cv_path = "";
 </script>
 
 <div class="container">
@@ -15,6 +16,13 @@
 				<li class:active={$page.url.pathname === "/articles"}>
 					<a sveltekit:prefetch href="/articles">Articles</a>
 				</li>
+
+				{#if cv_path}
+				<li class:active={$page.url.pathname === cv_path}>
+					<a href="{cv_path}" target="_blank">CV</a>
+				</li>
+				{/if}
+
 				{#if $session.user}
 				<li class:active={$page.url.pathname === "/auth/admin"}>
 					<a sveltekit:prefetch href="/auth/admin">Admin</a>
