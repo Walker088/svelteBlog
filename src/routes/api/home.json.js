@@ -14,7 +14,6 @@ export async function get() {
 	    a.created_time post_time
     FROM articales a
     WHERE a.post_status = 'PT'
-    GROUP BY a.post_id
     ORDER BY a.created_time DESC LIMIT 3
     `;
     const profileInfo = await db.prepare(queryIntroduction).get('walker088');

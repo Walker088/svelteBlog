@@ -119,7 +119,6 @@
 		if (!validateForm()) return;
 		let newArticle = new FormData();
 		post_img_name = await generateImageHash(post_img_file[0]).then(hash => hash);
-		debugger;
 		newArticle.append("post_title", post_title);
 		newArticle.append("post_sub_title", post_sub_title);
 		newArticle.append("post_serie", post_serie);

@@ -15,7 +15,6 @@ export async function get({ params }) {
         a.post_content 
     FROM articales a
     WHERE a.post_id = ? AND a.post_status = 'PT'
-    GROUP BY a.post_id
     ORDER BY a.created_time DESC
     `;
     const article = await db.prepare(query).get(slug);

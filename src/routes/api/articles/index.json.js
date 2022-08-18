@@ -13,7 +13,6 @@ export async function get() {
 	    COALESCE(a.updated_time, a.created_time) post_time 
     FROM articales a
     WHERE a.post_status = 'PT' 
-    GROUP BY a.post_id
     ORDER BY a.created_time DESC
     `;
     const articles = await db.prepare(query).all();

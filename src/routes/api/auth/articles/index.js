@@ -25,7 +25,6 @@ const getArticleById = async (post_id) => {
             a.post_status
         FROM articales a
         WHERE a.post_id = ?
-        GROUP BY a.post_id
         ORDER BY a.created_time DESC`).get(post_id);
     if (articale) {
         articale.post_tags = JSON.parse(articale.post_tags);
@@ -168,7 +167,7 @@ export async function put(event) {
         if (await isPostTitleExists(articleInfo.post_title, articleInfo.post_id)) {
             return {status: 400, body: { error: "Duplicated Post Title" } };
         };
-        articleInfo.created_user = locals.user.user_id;
+        articleInfo.update_user = locals.user.user_id;
         const updateArticleStmt = db.prepare(`
             UPDATE 
                 articales 
@@ -178,7 +177,7 @@ export async function put(event) {
                 post_status = @post_status, 
                 post_content = @post_content, 
                 updated_time = DATETIME('now'), 
-                created_user = @created_user
+                update_user = @update_user
             WHERE post_id = @post_id
         `);
         const dropOrgTagsStmt = db.prepare(`DELETE FROM articales_tags WHERE post_id = @post_id;`);
@@ -193,7 +192,6 @@ export async function put(event) {
             for (const lang of post.post_langs) insertLangsStmt.run({post_id: post.post_id, lang_name: lang});
         });
         updatePostTx(articleInfo);
-        debugger
         if (newArticle.image) {
             const imgArrayBuffer = await newArticle.image.arrayBuffer();
             await fs.rm(`static/post_imgs/${articleInfo.post_id}`, {recursive: true, force: true});
