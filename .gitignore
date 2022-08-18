@@ -1,5 +1,6 @@
 .DS_Store
-./static/post_imgs
+/static/post_imgs
+/static/cv
 node_modules
 /build
 /.svelte-kit
@@ -12,3 +13,4 @@ node_modules
 .vscode
 *.db
 *.db-*
+test.js

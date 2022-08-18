@@ -1,5 +1,5 @@
 {
-  "name": "my-app",
+  "name": "svelte-blog",
   "version": "0.0.1",
   "scripts": {
     "debug": "NODE_OPTIONS=\"--inspect\" svelte-kit dev",
@@ -29,7 +29,7 @@
     "sharp": "^0.30.7",
     "showdown": "^2.1.0",
     "svelte-multiselect": "^5.0.1",
-    "sveltekit-i18n": "^2.2.2",
+    "svelte-simple-datatables": "^0.2.3",
     "sweetalert2": "^11.4.19"
   }
 }
