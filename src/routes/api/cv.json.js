@@ -1,7 +1,7 @@
-import db from "$lib/db/sqlite.js"
+import { GetCvPath } from "$lib/dao/profile/profile.js"
 
 export async function get() {
-    const resp = await db.prepare(`SELECT cv_path FROM users WHERE user_id = ?`).get("walker088");
+    const resp = await GetCvPath();
 	return {
         body: {
             cv_path: resp.cv_path
