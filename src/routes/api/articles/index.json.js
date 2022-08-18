@@ -4,6 +4,7 @@ export async function get() {
     const query = `
     SELECT
 	    a.post_id,
+        LOWER(REPLACE(a.post_title, ' ', '-')) post_title_id,
 	    a.post_title,
 	    a.post_sub_title,
 	    a.post_serie,

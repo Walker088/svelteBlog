@@ -2,6 +2,7 @@ import db from "$lib/db/sqlite.js"
 
 export async function get({ params }) {
     const { slug } = params;
+    const post_title = slug.replaceAll("-", "").toUpperCase();
     const query = `
     SELECT
 	    a.post_id,
@@ -14,10 +15,10 @@ export async function get({ params }) {
 	    COALESCE(a.updated_time, a.created_time) post_time,
         a.post_content 
     FROM articales a
-    WHERE a.post_id = ? AND a.post_status = 'PT'
+    WHERE UPPER(REPLACE(a.post_title, ' ', '')) = ? AND a.post_status = 'PT'
     ORDER BY a.created_time DESC
     `;
-    const article = await db.prepare(query).get(slug);
+    const article = await db.prepare(query).get(post_title);
     if (!article) return {status: 404, body: { error: "Article not found" } };
     return {
         body: {

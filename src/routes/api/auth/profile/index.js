@@ -96,7 +96,6 @@ export async function put( {request, locals} ) {
 		return {status: 401, body: { error: err} };
 	}
     try {
-        debugger;
         const reqData = await request.formData().then(d => Object.fromEntries(d));
         let newProfile = JSON.parse(reqData.profile);
         newProfile.update_user = locals.user.user_id;
@@ -112,7 +111,7 @@ export async function put( {request, locals} ) {
             await updateProfile(newProfile);
         }
         return {
-            body: {status: "success", message: `Successfully updated profile info`, article: await getProfile(locals.user.user_id)}
+            body: {status: "success", message: `Successfully updated profile info`, profile: await getProfile(locals.user.user_id)}
         }
     } catch (err) {
         console.error(err.stack);

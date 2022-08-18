@@ -122,7 +122,7 @@
 		<div class="card-body">
 			<div class="row">
 				<div class="col-sm-12 col-md-2 mb-2">
-					<img src="{post.post_img}" class="postImg" alt="...">
+					<img src="{post.post_img}.sm.webp" class="postImg" alt="...">
 				</div>
 				<div class="col-sm-12 col-md-10 text-md-start text-sm-center text-xs-center">
 					<div class="mb-2">
@@ -134,7 +134,7 @@
 						{#each JSON.parse(post.languages) as lang} <span class="badge rounded-pill bg-dark me-1">{lang}</span> {/each}
 					</div>
 					<div><p><small><em>{dayjs.utc(post.post_time).tz(dayjs.tz.guess()).format('YYYY-MM-DD HH:mm:ss')}</em></small></p></div>
-					<div class="d-flex flex-row justify-content-end"><a href="/articles/{post.post_id}" class="stretched-link" >Read more</a></div>
+					<div class="d-flex flex-row justify-content-end"><a href="/articles/{post.post_title_id}" class="stretched-link" >Read more</a></div>
 				</div>
 			</div>
 		</div>

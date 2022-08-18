@@ -82,7 +82,7 @@ export async function post(event) {
 		return {status: 401, body: { error: err} };
 	}
     const isPostTitleExists = async (title) => {
-        const query = "SELECT COUNT(a.post_id) AS ext FROM articales a WHERE UPPER(REPLACE(a.post_title, ' ', '')) == UPPER(REPLACE(?, ' ', ''))";
+        const query = "SELECT COUNT(a.post_id) AS ext FROM articales a WHERE UPPER(REPLACE(a.post_title, ' ', '')) = UPPER(REPLACE(?, ' ', ''))";
         const resp = await db.prepare(query).get(title);
         return resp.ext > 0;
     };
@@ -130,11 +130,11 @@ export async function post(event) {
         fs.mkdir(`./static/post_imgs/${newArticle.post_id}`, { recursive: true });
         await sharp(Buffer.from(imgArrayBuffer))
 		    	.resize({ width: IMG_WIDTH_SM, height: IMG_HEIGHT_SM, fit: "contain" })
-		    	.webp()
+		    	.webp({quality: 100, lossless: true})
 		    	.toFile(`static/post_imgs/${newArticle.post_id}/${newArticle.post_img_name}.sm.webp`);
         await sharp(Buffer.from(imgArrayBuffer))
 		    	.resize({ width: IMG_WIDTH_LG, height: IMG_HEIGHT_LG, fit: "contain" })
-		    	.webp()
+		    	.webp({quality: 100, lossless: true})
 		    	.toFile(`static/post_imgs/${newArticle.post_id}/${newArticle.post_img_name}.lg.webp`);
         return {
             body: {status: "success", message: `Successfully inserted ${newArticle}`, post_id: newArticle.post_id}
@@ -156,7 +156,7 @@ export async function put(event) {
 		return {status: 401, body: { error: err} };
 	}
     const isPostTitleExists = async (title, post_id) => {
-        const query = "SELECT COUNT(a.post_id) AS ext FROM articales a WHERE UPPER(REPLACE(a.post_title, ' ', '')) == UPPER(REPLACE(@post_title, ' ', '')) AND a.post_id <> @post_id";
+        const query = "SELECT COUNT(a.post_id) AS ext FROM articales a WHERE UPPER(REPLACE(a.post_title, ' ', '')) = UPPER(REPLACE(@post_title, ' ', '')) AND a.post_id <> @post_id";
         const resp = await db.prepare(query).get({post_title: title, post_id: post_id});
         return resp.ext > 0;
     };
@@ -177,7 +177,7 @@ export async function put(event) {
                 post_status = @post_status, 
                 post_content = @post_content, 
                 updated_time = DATETIME('now'), 
-                update_user = @update_user
+                updated_user = @update_user
             WHERE post_id = @post_id
         `);
         const dropOrgTagsStmt = db.prepare(`DELETE FROM articales_tags WHERE post_id = @post_id;`);
@@ -198,17 +198,18 @@ export async function put(event) {
             await fs.mkdir(`static/post_imgs/${articleInfo.post_id}`, { recursive: true });
             await sharp(Buffer.from(imgArrayBuffer))
 		    	.resize({ width: 315, height: 110, fit: "contain" })
-		    	.webp()
+		    	.webp({quality: 100, lossless: true})
 		    	.toFile(`static/${articleInfo.post_img}.sm.webp`);
             await sharp(Buffer.from(imgArrayBuffer))
 		    	.resize({ width: 945, height: 330, fit: "contain" })
-		    	.webp()
+		    	.webp({quality: 100, lossless: true})
 		    	.toFile(`static/${articleInfo.post_img}.lg.webp`);
         }
         return {
             body: {status: "success", message: `Successfully inserted ${newArticle}`, article: await getArticleById(articleInfo.post_id)}
         }
     } catch (err) {
+        console.error(err.stack);
         return {status: 400, body: { error: err } };
     }
 }

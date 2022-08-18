@@ -46,13 +46,13 @@
 		{#each recentPosts as post}
 			<div class="col-md-4 col-sm-12 my-1">
 				<div class="card">
-					<div class="image-container"><img src="{post.post_img}" class="card-img-top post-image" alt="..."></div>
+					<div class="image-container"><img src="{post.post_img}.sm.webp" class="card-img-top post-image" alt="..."></div>
 					<div class="card-body">
 						{#each JSON.parse(post.tags) as tag, idx} <span class="badge {badegeOpts[idx % badegeOpts.length]} mx-1 mb-2">{tag}</span> {/each}
 						<h5 class="card-title">{post.post_title}</h5>
 						<h6 class="card-subtitle text-muted">{post.post_sub_title}</h6>
 						<div class="d-flex flex-row justify-content-end">
-							<a href="/articles/{post.post_id}" class="stretched-link" >Read more</a>
+							<a href="/articles/{post.post_title_id}" class="stretched-link" >Read more</a>
 						</div>
 					</div>
 					<div class="card-footer text-muted d-flex justify-content-between">

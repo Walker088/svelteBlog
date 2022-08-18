@@ -52,7 +52,7 @@
                 <p><small><em>{dayjs.utc(article.post_time).tz(dayjs.tz.guess()).format('YYYY-MM-DD HH:mm:ss')}</em></small></p>
             </div>
         </div>
-        <div class="post-image"><img src="{article.post_img}" class="card-img-top post-image" alt="..."></div>
+        <div class="post-image"><img src="{article.post_img}.lg.webp" class="card-img-top post-image" alt="..."></div>
         <div class="post-content mt-4">{@html markdownCvt.makeHtml(article.post_content)}</div>
     </article>
 </div>
