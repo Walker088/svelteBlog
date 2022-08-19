@@ -73,7 +73,8 @@
 
 <svelte:head>
 	<title>Articles</title>
-	<meta name="description" content="Articles of the blog of Walker088" />
+	<meta name="description" content="{import.meta.env.VITE_SITE_DESC}"/>
+	<meta name="author" content="walker088" />
 </svelte:head>
 
 

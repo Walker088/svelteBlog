@@ -2,7 +2,10 @@ import { GetPublishedPosts } from '$lib/dao/articles/articles.js'
 import { GetCvPath } from "$lib/dao/profile/profile.js"
 
 export async function get() {
-    const website = import.meta.env.VITE_DOMAIN_NAME;
+    const siteDomain = `https://${import.meta.env.VITE_DOMAIN_NAME}`;
+    //const siteName = import.meta.env.VITE_SITE_NAME;
+    //const siteDesc = import.meta.env.VITE_SITE_DESC;
+
     const genSiteMap = (posts, pages, cv_path) => `<?xml version="1.0" encoding="UTF-8" ?>
     <urlset
       xmlns="https://www.sitemaps.org/schemas/sitemap/0.9"
@@ -13,25 +16,25 @@ export async function get() {
       xmlns:video="https://www.google.com/schemas/sitemap-video/1.1"
     >
       <url>
-        <loc>https://${website}</loc>
+        <loc>${siteDomain}</loc>
         <changefreq>daily</changefreq>
         <priority>0.7</priority>
       </url>
       ${pages.map(p => `
       <url>
-        <loc>https://${website}/articles/${p}</loc>
+        <loc>${siteDomain}/articles/${p}</loc>
         <changefreq>daily</changefreq>
         <priority>0.7</priority>
       </url>
       `).join('')}
       <url>
-        <loc>https://${website}${cv_path}</loc>
+        <loc>${siteDomain}${cv_path}</loc>
         <changefreq>daily</changefreq>
         <priority>0.7</priority>
       </url>
       ${posts.map(p => `
       <url>
-        <loc>https://${website}/articles/${p.post_title_id}</loc>
+        <loc>${siteDomain}/articles/${p.post_title_id}</loc>
         <changefreq>daily</changefreq>
         <priority>0.7</priority>
       </url>
@@ -40,7 +43,7 @@ export async function get() {
 
     const posts = await GetPublishedPosts();
     const pages = [`articles`];
-    const cv_path = await GetCvPath().then(data => data.cv_path);;
+    const cv_path = await GetCvPath().then(data => data.cv_path);
     const headers = {
       'Cache-Control': 'max-age=0, s-maxage=3600',
       'Content-Type': 'application/xml',

@@ -33,7 +33,8 @@
 
 <svelte:head>
 	<title>Home</title>
-	<meta name="description" content="Walker088's Website" />
+	<meta name="description" content="{import.meta.env.VITE_SITE_DESC}"/>
+	<meta name="author" content="walker088" />
 </svelte:head>
 
 <div class="container introduction">
