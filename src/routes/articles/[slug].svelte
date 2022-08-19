@@ -19,7 +19,7 @@
 
 <script>
     import { session } from '$app/stores';
-    import showdown from 'showdown';
+    //import showdown from 'showdown';
     import dayjs from 'dayjs'
 	import utc from 'dayjs/plugin/utc.js'
 	import tz from 'dayjs/plugin/timezone.js'
@@ -27,7 +27,7 @@
 	dayjs.extend(tz);
 
     export let article;
-    const markdownCvt = new showdown.Converter();
+    //const markdownCvt = new showdown.Converter();
     const badegeOpts = ["bg-primary", "bg-success", "bg-danger", "bg-warning"];
 </script>
 
@@ -53,7 +53,7 @@
             </div>
         </div>
         <div class="post-image"><img src="{article.post_img}.lg.webp" class="card-img-top post-image" alt="..."></div>
-        <div class="post-content mt-4">{@html markdownCvt.makeHtml(article.post_content)}</div>
+        <div class="post-content mt-4">{@html article.post_content}</div>
     </article>
 </div>
 

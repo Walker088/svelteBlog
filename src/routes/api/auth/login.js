@@ -1,5 +1,5 @@
 import db from "$lib/db/sqlite.js"
-import bcrypt from 'bcrypt'
+import { bcryptVerify } from 'hash-wasm';
 import jwt from 'jsonwebtoken'
 import * as cookie from 'cookie';
 import { authenticator } from 'otplib';
@@ -13,7 +13,7 @@ export async function post({ request }) {
 	if (!saved_user) {
 		return {status: 401, body: { error: "There is no such user"} };
 	};
-	const valid_pass = await bcrypt.compare(user_pass, saved_user.user_pass);
+	const valid_pass = await bcryptVerify({ password: user_pass, hash: saved_user.user_pass, });
 	if (!valid_pass) {
 		return {status: 401, body: { error: "Password or Username incorrect" } };
 	};

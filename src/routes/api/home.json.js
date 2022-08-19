@@ -1,8 +1,42 @@
 import db from "$lib/db/sqlite.js"
+import showdown from 'showdown';
+import hljs from "highlight.js";
+showdown.extension('codehighlight', function() {
+    function htmlunencode(text) {
+        return (
+              text
+                .replace(/&amp;/g, '&')
+                .replace(/&lt;/g, '<')
+                .replace(/&gt;/g, '>')
+          );
+      };
+    return [
+        {
+              type: 'output',
+              filter: function (text, converter, options) {
+                    // use new shodown's regexp engine to conditionally parse codeblocks
+                    var left  = '<pre><code\\b[^>]*>',
+                        right = '</code></pre>',
+                        flags = 'g',
+                    replacement = function (wholeMatch, match, left, right) {
+                        // unescape match to prevent double escaping
+                        match = htmlunencode(match);
+                        return left + hljs.highlightAuto(match).value + right;
+                  };
+                    return showdown.helper.replaceRecursiveRegExp(text, replacement, left, right, flags);
+              }
+        }
+      ];
+});
+const markdownCvt = new showdown.Converter({extensions: ['codehighlight']});
 
-export async function get() {
-    const queryIntroduction = `SELECT profile_bio, profile_img  FROM users WHERE user_id = ?`;
-    const queryRecentPosts = `
+const queryIntro = async () => {
+    let profile = await db.prepare(`SELECT profile_bio, profile_img  FROM users WHERE user_id = ?`).get('walker088');
+    profile.profile_bio = markdownCvt.makeHtml(profile.profile_bio);
+    return profile;
+};
+const queryRecentPosts = async () => {
+    let posts = await db.prepare(`
     SELECT
 	    a.post_id,
         LOWER(REPLACE(a.post_title, ' ', '-')) post_title_id,
@@ -16,9 +50,13 @@ export async function get() {
     FROM articales a
     WHERE a.post_status = 'PT'
     ORDER BY a.created_time DESC LIMIT 3
-    `;
-    const profileInfo = await db.prepare(queryIntroduction).get('walker088');
-    const recentPosts = await db.prepare(queryRecentPosts).all();
+    `).all();
+    return posts;
+};
+
+export async function get() {
+    const profileInfo = await queryIntro();
+    const recentPosts = await queryRecentPosts();
     if (profileInfo) {
         return {
             body: {

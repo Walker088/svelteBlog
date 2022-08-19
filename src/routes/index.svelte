@@ -18,14 +18,12 @@
 </script>
 
 <script>
-	import showdown from 'showdown';
 	import dayjs from 'dayjs'
 	import utc from 'dayjs/plugin/utc.js'
 	import tz from 'dayjs/plugin/timezone.js'
 	dayjs.extend(utc);
 	dayjs.extend(tz);
 
-	const markdownCvt = new showdown.Converter();
 	const badegeOpts = ["bg-primary", "bg-success", "bg-danger", "bg-warning"];
 	export let profileInfo;
 	export let recentPosts;
@@ -38,7 +36,7 @@
 </svelte:head>
 
 <div class="container introduction">
-	<div class="card p-4">{@html markdownCvt.makeHtml(profileInfo.profile_bio)}</div>
+	<div class="card p-4">{@html profileInfo.profile_bio}</div>
 </div>
 
 <div class='container recent-posts'>
