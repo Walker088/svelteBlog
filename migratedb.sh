@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
-export $(grep -v '^#' .env | xargs)
+set -a
+[ -f .env.development ] && . .env.development
+set +a
 
 flywayBaseline() {
     docker run --rm --network host \
@@ -19,7 +21,7 @@ flywayMigrate() {
 flywayInfo() {
     docker run --rm --network host \
         -v "$(pwd)/flyway:/flyway/sql" \
-        -v "$(pwd)/$VITE_DB_NAME:/flyway/$VITE_DB_NAME" \
+        -v "$(pwd)/$VITE_DB_NAME:/flyway/$VITE_DB_NAME:rw" \
         flyway/flyway:8.5.0-alpine -url=jdbc:sqlite:/flyway/$VITE_DB_NAME info
 }
 
@@ -39,3 +41,6 @@ elif [[ $1 == migrate ]]; then
     flywayMigrate
 
 fi
+
+# Clean the env variables
+unset $(grep -v '^#' .env.development | sed -E 's/(.*)=.*/\1/' | xargs)

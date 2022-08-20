@@ -1,0 +1,17 @@
+.svelte-kit
+.env.development
+build
+node_modules
+npm-debug.log
+
+Dockerfile
+.git
+.gitignore
+.dockerignore
+README.md
+
+test.js
+*.db
+*.db-*
+static/cv
+static/post_imgs
