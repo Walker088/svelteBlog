@@ -1,6 +1,5 @@
 .svelte-kit
 .env.development
-build
 node_modules
 npm-debug.log
 
