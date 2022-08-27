@@ -1,4 +1,6 @@
 import db from "$lib/db/sqlite.js"
+import { GetRecentPosts } from '$lib/dao/articles/articles.js'
+
 import showdown from 'showdown';
 import hljs from "highlight.js";
 showdown.extension('codehighlight', function() {
@@ -35,28 +37,10 @@ const queryIntro = async () => {
     profile.profile_bio = markdownCvt.makeHtml(profile.profile_bio);
     return profile;
 };
-const queryRecentPosts = async () => {
-    let posts = await db.prepare(`
-    SELECT
-	    a.post_id,
-        LOWER(REPLACE(a.post_title, ' ', '-')) post_title_id,
-	    a.post_title,
-	    a.post_sub_title,
-	    a.post_serie,
-	    a.post_img,
-	    (SELECT json_group_array(tag_name) FROM articales_tags WHERE post_id = a.post_id ORDER BY tag_name) tags,
-	    (SELECT json_group_array(lang_name) FROM articales_langs WHERE post_id = a.post_id ORDER BY lang_name) languages,
-	    a.created_time post_time
-    FROM articales a
-    WHERE a.post_status = 'PT'
-    ORDER BY a.created_time DESC LIMIT 3
-    `).all();
-    return posts;
-};
 
 export async function get() {
     const profileInfo = await queryIntro();
-    const recentPosts = await queryRecentPosts();
+    const recentPosts = await GetRecentPosts();
     if (profileInfo) {
         return {
             body: {

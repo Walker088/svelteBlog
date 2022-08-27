@@ -50,6 +50,7 @@
 						{#each JSON.parse(post.tags) as tag, idx} <span class="badge {badegeOpts[idx % badegeOpts.length]} mx-1 mb-2">{tag}</span> {/each}
 						<h5 class="card-title">{post.post_title}</h5>
 						<h6 class="card-subtitle text-muted">{post.post_sub_title}</h6>
+						<p class="mt-2 fst-italic fw-light post-preview">{post.post_preview}</p>
 						<div class="d-flex flex-row justify-content-end">
 							<a href="/articles/{post.post_title_id}" class="stretched-link" >Read more</a>
 						</div>
@@ -75,6 +76,12 @@
 		justify-content: center;
 		flex: 1;
 	}
+
+	.post-preview {
+		height: 3rem;
+		overflow-y: hidden;
+	}
+
 	.post-image{
   		width: 100%;
   		height: 100%;

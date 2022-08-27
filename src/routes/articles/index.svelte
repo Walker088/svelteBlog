@@ -125,7 +125,7 @@
 				<div class="col-sm-12 col-md-2 mb-2">
 					<img src="{post.post_img}.sm.webp" class="postImg" alt="...">
 				</div>
-				<div class="col-sm-12 col-md-10 text-md-start text-sm-center text-xs-center">
+				<div class="col-sm-12 col-md-4 text-md-start text-sm-center text-xs-center">
 					<div class="mb-2">
 						<h5>{post.post_title}</h5>
 						<h6 class="card-subtitle text-muted">{post.post_sub_title}</h6>
@@ -135,7 +135,12 @@
 						{#each JSON.parse(post.languages) as lang} <span class="badge rounded-pill bg-dark me-1">{lang}</span> {/each}
 					</div>
 					<div><p><small><em>{dayjs.utc(post.post_time).tz(dayjs.tz.guess()).format('YYYY-MM-DD HH:mm:ss')}</em></small></p></div>
-					<div class="d-flex flex-row justify-content-end"><a href="/articles/{post.post_title_id}" class="stretched-link" >Read more</a></div>
+				</div>
+				<div class="col-sm-12 col-md-6 text-md-start text-sm-start text-xs-start">
+					<div class="d-flex flex-column justify-content-between h-100">
+						<p class="fst-italic fw-light">{post.post_preview}</p>
+						<a href="/articles/{post.post_title_id}" class="stretched-link text-end" >Read more</a>
+					</div>
 				</div>
 			</div>
 		</div>
