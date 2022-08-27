@@ -29,6 +29,8 @@
 </script>
 
 <script>
+	import '$lib/css/post_content.css';
+
     import { createMD5 } from 'hash-wasm';
 	import MultiSelect from 'svelte-multiselect';
 	import Swal from 'sweetalert2';
@@ -218,7 +220,7 @@
 					<textarea class="markdown-editor__textarea" bind:value={article.post_content} on:keydown={handleTab}/>
 				</div>
 				<div class="markdown-editor__panel">
-					<div class="markdown-editor__result-html overflow-auto">
+					<div class="markdown-editor__result-html overflow-auto post-content">
 						{@html post_content_rendered}
 					</div>
 				</div>

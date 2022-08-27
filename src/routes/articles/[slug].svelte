@@ -18,6 +18,8 @@
 </script>
 
 <script>
+    import '$lib/css/post_content.css';
+
     import { session } from '$app/stores';
     //import showdown from 'showdown';
     import dayjs from 'dayjs'
@@ -58,5 +60,10 @@
 </div>
 
 <style>
+    .post-image{
+  		width: 100%;
+  		height: 100%;
+  		object-fit: contain;
+	}
 
 </style>

@@ -1,0 +1,46 @@
+
+.post-content p {
+    margin: .75rem 0;
+    font-size: 1.2rem;
+    line-height: 2rem;
+}
+
+.post-content h2 {
+    font-size: 2rem;
+    font-weight: 600;
+    margin: 3rem 0 .5rem;
+}
+
+.post-content h3 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin: 2rem 0 .3rem;
+}
+
+.post-content h4 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin: 2rem 0 .3rem;
+}
+
+.post-content pre {
+    overflow-x: auto;
+    background-color: #1C1E26;
+    padding: 1rem;
+}
+
+.post-content a {
+    color: #00c2c2;
+}
+
+.post-content img {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+    max-width: 100%;
+    height: auto;
+    width: auto;
+    box-shadow: var(--image-shadow);
+}
