@@ -172,6 +172,8 @@ export async function put(event) {
             UPDATE 
                 articales 
             SET 
+                post_title = @post_title,
+                post_sub_title = @post_sub_title,
                 post_serie = @post_serie,
                 post_img = @post_img, 
                 post_status = @post_status, 
