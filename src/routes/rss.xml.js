@@ -6,7 +6,7 @@ export async function get() {
     const siteName = import.meta.env.VITE_SITE_NAME;
     const siteDesc = import.meta.env.VITE_SITE_DESC;
     const genRssXml = (posts) => `
-    <rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+    <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
         <channel>
           <title>${siteName}</title>
           <link>${siteDomain}</link>
@@ -15,7 +15,8 @@ export async function get() {
           ${posts.map( p => `
               <item>
                 <title>${p.post_title}</title>
-                <description>A blog built with SvelteKit about tech and stuff!</description>
+                <description>${p.post_sub_title}</description>
+                <content:encoded>${p.post_preview}</content:encoded>
                 <link>${siteDomain}/articles/${p.post_title_id}</link>
                 <guid>${siteDomain}/articles/${p.post_title_id}</guid>
                 <pubDate>${dayjs(p.post_time).format("ddd, DD MMM YYYY HH:mm:ss")} UT</pubDate>
