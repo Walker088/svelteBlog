@@ -2,34 +2,33 @@
   "name": "svelte-blog",
   "version": "0.0.1",
   "scripts": {
-    "debug": "NODE_OPTIONS=\"--inspect\" svelte-kit dev",
-    "dev": "svelte-kit dev",
-    "build": "svelte-kit build",
-    "package": "svelte-kit package",
-    "preview": "svelte-kit preview",
-    "prepare": "svelte-kit sync"
-  },
+    "debug": "NODE_OPTIONS=\"--inspect\" vite dev",
+		"dev": "vite dev",
+		"build": "vite build",
+		"preview": "vite preview"
+	},
   "devDependencies": {
-    "@sveltejs/adapter-node": "1.0.0-next.72",
-    "@sveltejs/kit": "1.0.0-next.336",
-    "svelte": "^3.46.0"
+    "@sveltejs/adapter-node": "1.0.0-next.88",
+    "@sveltejs/kit": "1.0.0-next.466",
+    "svelte": "^3.50.0",
+    "vite": "^3.1.0-beta.1"
   },
   "type": "module",
   "dependencies": {
-    "better-sqlite3": "^7.5.3",
-    "bootstrap": "^5.1.3",
-    "bootstrap-icons": "^1.8.3",
-    "cookie": "^0.4.1",
-    "dayjs": "^1.11.3",
+    "better-sqlite3": "^7.6.2",
+    "bootstrap": "^5.2.0",
+    "bootstrap-icons": "^1.9.1",
+    "cookie": "^0.5.0",
+    "dayjs": "^1.11.5",
     "hash-wasm": "^4.9.0",
-    "highlight.js": "^11.5.1",
+    "highlight.js": "^11.6.0",
     "jsonwebtoken": "^8.5.1",
-    "node-html-parser": "^5.4.2-0",
+    "node-html-parser": "^5.4.2",
     "otplib": "^12.0.1",
     "sharp": "^0.30.7",
     "showdown": "^2.1.0",
-    "svelte-multiselect": "^5.0.1",
+    "svelte-multiselect": "^6.0.0",
     "svelte-simple-datatables": "^0.2.3",
-    "sweetalert2": "^11.4.19"
+    "sweetalert2": "^11.4.29"
   }
 }

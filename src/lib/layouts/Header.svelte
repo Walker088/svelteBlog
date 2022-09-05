@@ -1,9 +1,9 @@
 <script>
 	import { page } from "$app/stores";
-	import { session } from '$app/stores';
-
 	import DarkModeToggle from "$lib/themes/DarkModeToggle.svelte";
-	export let cv_path = "";
+
+	export let cv_path;
+	export let user;
 </script>
 
 <div class="container">
@@ -11,10 +11,10 @@
 		<nav class="navbar navbar-expand-lg me-4">
 			<ul>
 				<li class:active={$page.url.pathname === "/"}>
-					<a sveltekit:prefetch href="/">Home</a>
+					<a data-sveltekit-prefetch href="/">Home</a>
 				</li>
 				<li class:active={$page.url.pathname === "/articles"}>
-					<a sveltekit:prefetch href="/articles">Articles</a>
+					<a data-sveltekit-prefetch href="/articles">Articles</a>
 				</li>
 
 				{#if cv_path}
@@ -23,12 +23,12 @@
 				</li>
 				{/if}
 
-				{#if $session.user}
+				{#if user}
 				<li class:active={$page.url.pathname === "/auth/admin"}>
-					<a sveltekit:prefetch href="/auth/admin">Admin</a>
+					<a data-sveltekit-prefetch href="/auth/admin">Admin</a>
 				</li>
 				<li class:active={$page.url.pathname === "/api/auth/logout"}>
-					<a sveltekit:prefetch href="/api/auth/logout">Logout</a>
+					<a data-sveltekit-prefetch href="/api/auth/logout">Logout</a>
 				</li>
 				{/if}
 			</ul>

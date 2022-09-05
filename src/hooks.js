@@ -1,5 +1,5 @@
 import * as cookie from 'cookie';
-import jwt from 'jsonwebtoken'
+import jwt from 'jsonwebtoken';
 
 export const handle = async ({ event, resolve }) => {
 	const { request, locals } = event
@@ -12,12 +12,3 @@ export const handle = async ({ event, resolve }) => {
 	}
 	return await resolve(event);
 };
-
-export function getSession({ locals }) {
-	return {
-		user: locals.user && {
-			user_id: locals.user.user_id,
-			profile_img: locals.user.profile_img,
-		}
-	};
-}
