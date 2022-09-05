@@ -1,8 +1,6 @@
-import db from "$lib/db/sqlite.js"
+import db from "$lib/db/sqlite.js";
+import { markdownCvt } from "$lib/md_converter.js";
 import { parse } from 'node-html-parser';
-import showdown from 'showdown';
-
-const markdownCvt = new showdown.Converter();
 
 export async function GetPublishedPosts() {
     const query = `
@@ -22,7 +20,7 @@ export async function GetPublishedPosts() {
     ORDER BY a.created_time DESC
     `;
     const posts = await db.prepare(query).all().map(p => {
-        const rendered = markdownCvt.makeHtml(p.post_content);
+        const rendered = markdownCvt.render(p.post_content);
         const parsed = parse(rendered);
         const post_preview = parsed.querySelector('p').structuredText;
         const { ['post_content']: post_content, ...rest } = p;
@@ -48,7 +46,7 @@ export async function GetRecentPosts() {
     WHERE a.post_status = 'PT'
     ORDER BY a.created_time DESC LIMIT 3
     `).all().map(p => {
-        const rendered = markdownCvt.makeHtml(p.post_content);
+        const rendered = markdownCvt.render(p.post_content);
         const parsed = parse(rendered);
         const post_preview = parsed.querySelector('p').structuredText;
         const { ['post_content']: post_content, ...rest } = p;

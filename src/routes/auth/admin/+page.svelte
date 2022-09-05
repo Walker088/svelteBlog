@@ -1,4 +1,5 @@
 <script>
+	import { markdownCvt } from "../md_converter.js";
 	import Swal from 'sweetalert2';
 	import { page } from '$app/stores';
 	import { Datatable } from 'svelte-simple-datatables';
@@ -11,36 +12,6 @@
 	let profile = data.profile || {};
 	let articles = data.articles || [];
 
-	import hljs from "highlight.js";
-	import showdown from 'showdown';
-	showdown.extension('codehighlight', function() {
-		function htmlunencode(text) {
-    		return (
-      			text
-  		      	.replace(/&amp;/g, '&')
-  		      	.replace(/&lt;/g, '<')
-  		      	.replace(/&gt;/g, '>')
-  		    );
-  		};
-		return [
-    		{
-    		  	type: 'output',
-    		  	filter: function (text, converter, options) {
-    		  	  	// use new shodown's regexp engine to conditionally parse codeblocks
-    		  	  	var left  = '<pre><code\\b[^>]*>',
-    		  	  	    right = '</code></pre>',
-    		  	  	    flags = 'g',
-    		  	  	replacement = function (wholeMatch, match, left, right) {
-    		  	      	// unescape match to prevent double escaping
-    		  	      	match = htmlunencode(match);
-    		  	      	return left + hljs.highlightAuto(match).value + right;
-    		  	    };
-    		  	  	return showdown.helper.replaceRecursiveRegExp(text, replacement, left, right, flags);
-    		  	}
-    		}
-  		];
-	});
-
 	let showArticlesCard = true;
 	let rows;
 	let settings = {
@@ -51,7 +22,13 @@
         scrollY: false
 	}
 
-	const markdownCvt = new showdown.Converter({extensions: ['codehighlight']});
+	let typingTimer;
+	const handleMdPreview = () => {
+		clearTimeout(typingTimer);
+		typingTimer = setTimeout(() => {
+			profile_bio_rendered = markdownCvt.render(profile.profile_bio);
+		}, 1000);
+	};
 	const handleTab = (event) => {
 		if (event.key === "Tab") {
 			event.preventDefault();
@@ -120,7 +97,7 @@
 
 	let showProfileCard = true;
 	let profile_cv = [];
-	$: profile_bio_rendered = markdownCvt.makeHtml(profile.profile_bio);
+	let profile_bio_rendered = profile.profile_bio ? markdownCvt.render(profile.profile_bio) : "";
 </script>
 
 <svelte:head>
@@ -145,7 +122,7 @@
 				</div>
 				<div class="markdown-editor d-flex flex-column flex-lg-row justify-content-between">
 					<div class="markdown-editor__panel">
-						<textarea class="markdown-editor__textarea" bind:value={profile.profile_bio} on:keydown={handleTab}/>
+						<textarea class="markdown-editor__textarea" bind:value={profile.profile_bio} on:keydown={handleTab} on:change={handleMdPreview}/>
 					</div>
 					<div class="markdown-editor__panel">
 						<div class="markdown-editor__result-html overflow-auto">

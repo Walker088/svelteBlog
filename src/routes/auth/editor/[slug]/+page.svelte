@@ -4,38 +4,15 @@
     import { createMD5 } from 'hash-wasm';
 	import MultiSelect from 'svelte-multiselect';
 	import Swal from 'sweetalert2';
+	import { markdownCvt } from "../../md_converter.js";
 
-	import hljs from "highlight.js";
-	import showdown from 'showdown';
-	showdown.extension('codehighlight', function() {
-		function htmlunencode(text) {
-    		return (
-      			text
-  		      	.replace(/&amp;/g, '&')
-  		      	.replace(/&lt;/g, '<')
-  		      	.replace(/&gt;/g, '>')
-  		    );
-  		};
-		return [
-    		{
-    		  	type: 'output',
-    		  	filter: function (text, converter, options) {
-    		  	  	// use new shodown's regexp engine to conditionally parse codeblocks
-    		  	  	var left  = '<pre><code\\b[^>]*>',
-    		  	  	    right = '</code></pre>',
-    		  	  	    flags = 'g',
-    		  	  	replacement = function (wholeMatch, match, left, right) {
-    		  	      	// unescape match to prevent double escaping
-    		  	      	match = htmlunencode(match);
-    		  	      	return left + hljs.highlightAuto(match).value + right;
-    		  	    };
-    		  	  	return showdown.helper.replaceRecursiveRegExp(text, replacement, left, right, flags);
-    		  	}
-    		}
-  		];
-	});
-	const markdownCvt = new showdown.Converter({extensions: ['codehighlight']});
-
+	let typingTimer;
+	const handleMdPreview = () => {
+		clearTimeout(typingTimer);
+		typingTimer = setTimeout(() => {
+			post_content_rendered = markdownCvt.render(article.post_content);
+		}, 1000);
+	};
 	const handleTab = (event) => {
 		if (event.key === "Tab") {
 			event.preventDefault();
@@ -125,12 +102,13 @@
 	};
 
     let post_img_file = [];
+
 	export let data;
 	let tags = data.tags || [];
     let langs = data.langs || [];
     let series = data.series || [];
     let article = data.article || {};
-    $: post_content_rendered = markdownCvt.makeHtml(article.post_content);
+	let post_content_rendered = data.article ? markdownCvt.render(article.post_content) : "";
 </script>
 
 <svelte:head>
@@ -190,7 +168,7 @@
 			<div class="post-image"><img src="{article.post_img}.lg.webp" class="card-img-top post-image" alt="..."></div>
 			<div class="markdown-editor d-flex flex-column flex-lg-row justify-content-between">
 				<div class="markdown-editor__panel">
-					<textarea class="markdown-editor__textarea" bind:value={article.post_content} on:keydown={handleTab}/>
+					<textarea class="markdown-editor__textarea" bind:value={article.post_content} on:keydown={handleTab} on:change={handleMdPreview}/>
 				</div>
 				<div class="markdown-editor__panel">
 					<div class="markdown-editor__result-html overflow-auto post-content">

@@ -1,36 +1,7 @@
 import { error } from '@sveltejs/kit';
 
 import db from "$lib/db/sqlite.js"
-import showdown from 'showdown';
-import hljs from "highlight.js";
-showdown.extension('codehighlight', function() {
-    function htmlunencode(text) {
-        return (
-              text
-                .replace(/&amp;/g, '&')
-                .replace(/&lt;/g, '<')
-                .replace(/&gt;/g, '>')
-          );
-      };
-    return [
-        {
-              type: 'output',
-              filter: function (text, converter, options) {
-                    // use new shodown's regexp engine to conditionally parse codeblocks
-                    var left  = '<pre><code\\b[^>]*>',
-                        right = '</code></pre>',
-                        flags = 'g',
-                    replacement = function (wholeMatch, match, left, right) {
-                        // unescape match to prevent double escaping
-                        match = htmlunencode(match);
-                        return left + hljs.highlightAuto(match).value + right;
-                  };
-                    return showdown.helper.replaceRecursiveRegExp(text, replacement, left, right, flags);
-              }
-        }
-      ];
-});
-const markdownCvt = new showdown.Converter({extensions: ['codehighlight']});
+import { markdownCvt } from "$lib/md_converter.js";
 
 const queryPostByTitle = async (post_title) => {
     let post = await db.prepare(`
@@ -47,7 +18,7 @@ const queryPostByTitle = async (post_title) => {
     FROM articales a
     WHERE UPPER(REPLACE(a.post_title, ' ', '')) = ? AND a.post_status = 'PT'
     ORDER BY a.created_time DESC`).get(post_title);
-    if(post) post.post_content = markdownCvt.makeHtml(post.post_content);
+    if(post) post.post_content = markdownCvt.render(post.post_content);
     return post;
 };
 

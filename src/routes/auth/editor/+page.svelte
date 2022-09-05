@@ -4,36 +4,15 @@
 	import { createMD5 } from 'hash-wasm';
 	import MultiSelect from 'svelte-multiselect';
 	import Swal from 'sweetalert2';
-	import hljs from "highlight.js";
-	import showdown from 'showdown';
-	showdown.extension('codehighlight', function() {
-		function htmlunencode(text) {
-    		return (
-      			text
-  		      	.replace(/&amp;/g, '&')
-  		      	.replace(/&lt;/g, '<')
-  		      	.replace(/&gt;/g, '>')
-  		    );
-  		};
-		return [
-    		{
-    		  	type: 'output',
-    		  	filter: function (text, converter, options) {
-    		  	  	// use new shodown's regexp engine to conditionally parse codeblocks
-    		  	  	var left  = '<pre><code\\b[^>]*>',
-    		  	  	    right = '</code></pre>',
-    		  	  	    flags = 'g',
-    		  	  	replacement = function (wholeMatch, match, left, right) {
-    		  	      	// unescape match to prevent double escaping
-    		  	      	match = htmlunencode(match);
-    		  	      	return left + hljs.highlightAuto(match).value + right;
-    		  	    };
-    		  	  	return showdown.helper.replaceRecursiveRegExp(text, replacement, left, right, flags);
-    		  	}
-    		}
-  		];
-	});
-	const markdownCvt = new showdown.Converter({extensions: ['codehighlight']});
+	import { markdownCvt } from "../md_converter.js";
+
+	let typingTimer;
+	const handleMdPreview = () => {
+		clearTimeout(typingTimer);
+		typingTimer = setTimeout(() => {
+			post_content_rendered = markdownCvt.render(post_content);
+		}, 1000);
+	};
 	const handleTab = (event) => {
 		if (event.key === "Tab") {
 			event.preventDefault();
@@ -133,8 +112,6 @@
 	let tags = data.tags || [];
 	let langs = data.langs || [];
 
-	let post_img_file = [];
-
 	let post_title = "";
 	let post_sub_title = "";
 	let post_serie = "";
@@ -143,8 +120,9 @@
 	let post_langs = [];
 	let post_status = "";
     let post_content = "";
+	let post_content_rendered = "";
+	let post_img_file = [];
 
-	$: post_content_rendered = markdownCvt.makeHtml(post_content);
 </script>
 
 <svelte:head>
@@ -203,7 +181,7 @@
 			</div>
 			<div class="markdown-editor d-flex flex-column flex-lg-row justify-content-between">
 				<div class="markdown-editor__panel">
-					<textarea class="markdown-editor__textarea" bind:value={post_content} on:keydown={handleTab}/>
+					<textarea class="markdown-editor__textarea" bind:value={post_content} on:keydown={handleTab} on:change={handleMdPreview}/>
 				</div>
 				<div class="markdown-editor__panel">
 					<div class="markdown-editor__result-html overflow-auto">
