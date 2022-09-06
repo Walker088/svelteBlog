@@ -1,4 +1,4 @@
-import db from "$lib/db/sqlite.js";
+import db from "$lib/dao/sqlite.js";
 import { markdownCvt } from "$lib/md_converter.js";
 import { parse } from 'node-html-parser';
 
@@ -17,7 +17,7 @@ export async function GetPublishedPosts() {
 	    COALESCE(a.updated_time, a.created_time) post_time 
     FROM articales a
     WHERE a.post_status = 'PT' 
-    ORDER BY a.created_time DESC
+    ORDER BY COALESCE(a.updated_time, a.created_time) DESC
     `;
     const posts = await db.prepare(query).all().map(p => {
         const rendered = markdownCvt.render(p.post_content);
@@ -41,10 +41,10 @@ export async function GetRecentPosts() {
 	    a.post_img,
 	    (SELECT json_group_array(tag_name) FROM articales_tags WHERE post_id = a.post_id ORDER BY tag_name) tags,
 	    (SELECT json_group_array(lang_name) FROM articales_langs WHERE post_id = a.post_id ORDER BY lang_name) languages,
-	    a.created_time post_time
+	    COALESCE(a.updated_time, a.created_time) post_time
     FROM articales a
     WHERE a.post_status = 'PT'
-    ORDER BY a.created_time DESC LIMIT 3
+    ORDER BY COALESCE(a.updated_time, a.created_time) DESC LIMIT 3
     `).all().map(p => {
         const rendered = markdownCvt.render(p.post_content);
         const parsed = parse(rendered);

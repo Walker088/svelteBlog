@@ -1,4 +1,4 @@
-import db from "$lib/db/sqlite.js"
+import db from "$lib/dao/sqlite.js"
 import { GetRecentPosts } from '$lib/dao/articles/articles.js'
 import { markdownCvt } from "$lib/md_converter.js";
 

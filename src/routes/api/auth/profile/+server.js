@@ -1,6 +1,6 @@
 import { error } from '@sveltejs/kit';
 
-import db from "$lib/db/sqlite.js"
+import db from "$lib/dao/sqlite.js"
 import * as cookie from "cookie";
 import jwt from "jsonwebtoken";
 import dayjs from 'dayjs';
