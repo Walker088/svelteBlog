@@ -12,5 +12,5 @@ export async function load({ params, fetch }) {
             article: res_data.article,
         };
     }
-    throw error(400, "Post not found");
+    throw error(404, "Post not found");
 }

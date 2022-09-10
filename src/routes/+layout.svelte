@@ -1,5 +1,5 @@
 <script>
-	import { page } from '$app/stores';
+	//import { page } from '$app/stores';
 
 	import "bootstrap/dist/css/bootstrap.css";
 	import "bootstrap-icons/font/bootstrap-icons.css";
