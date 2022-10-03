@@ -95,6 +95,10 @@ div.multiselect > ul.options {
 		border-color: #4d4d4d;
 	}
 
+	body.dark .card-header {
+		border-bottom: 0.1rem solid rgb(178, 178, 178);
+	}
+
 	body.dark .card-body {
 		color: white;
 	}

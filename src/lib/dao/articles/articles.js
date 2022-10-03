@@ -53,3 +53,21 @@ export async function GetRecentPosts() {
         return {...rest, post_preview};
     });
 }
+
+export async function GetPostByTitle (post_title) {
+    let post = await db.prepare(`
+    SELECT
+        a.post_id,
+        a.post_title,
+        a.post_sub_title,
+        a.post_serie,
+        a.post_img,
+        (SELECT json_group_array(tag_name) FROM articales_tags WHERE post_id = a.post_id ORDER BY tag_name) tags,
+        (SELECT json_group_array(lang_name) FROM articales_langs WHERE post_id = a.post_id ORDER BY lang_name) languages,
+        COALESCE(a.updated_time, a.created_time) post_time,
+        a.post_content 
+    FROM articales a
+    WHERE UPPER(REPLACE(a.post_title, ' ', '')) = ? AND a.post_status = 'PT'`).get(post_title);
+    if(post) post.post_content = markdownCvt.render(post.post_content);
+    return post;
+};

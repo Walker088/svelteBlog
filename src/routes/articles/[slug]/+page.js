@@ -9,5 +9,5 @@ export async function load({ params, fetch }) {
             article,
         };
     }
-    throw error(400, "Post not found");
+    throw error(404, "Post not found");
 }
