@@ -1,4 +1,7 @@
 <script>
+    import { theme } from "$lib/themes/themeStore.js";
+
+    import Giscus from '@giscus/svelte';
     import { page } from "$app/stores";
     import '$lib/css/post_content.css';
 
@@ -11,6 +14,8 @@
     export let data;
     let article = data.article || {};
     const badegeOpts = ["bg-primary", "bg-success", "bg-danger", "bg-warning"];
+
+    $: giscus_theme = $theme === "dark" ? "dark_dimmed" : "light";
 </script>
 
 <svelte:head>
@@ -37,13 +42,21 @@
         <div class="post-image"><img src="{article.post_img}.lg.webp" class="card-img-top post-image" alt="..."></div>
         <div class="post-content mt-4">{@html article.post_content}</div>
     </article>
+
+    <div>
+        <Giscus bind:id={article.post_title}
+            repo="Walker088/blog.walker088.comments"
+            repoId="R_kgDOIH1ghw"
+            category="Announcements"
+            categoryId="DIC_kwDOIH1gh84CRxdq"
+            mapping="pathname"
+            reactionsEnabled="1"
+            emitMetadata="1"
+            inputPosition="top"
+            theme={giscus_theme}
+            lang="en"
+            loading="lazy"
+        />
+    </div>
 </div>
 
-<style>
-    .post-image{
-  		width: 100%;
-  		height: 100%;
-  		object-fit: contain;
-	}
-
-</style>

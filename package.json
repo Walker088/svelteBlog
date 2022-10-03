@@ -15,6 +15,7 @@
   },
   "type": "module",
   "dependencies": {
+    "@giscus/svelte": "^2.2.0",
     "better-sqlite3": "^7.6.2",
     "bootstrap": "^5.2.2",
     "bootstrap-icons": "^1.9.1",

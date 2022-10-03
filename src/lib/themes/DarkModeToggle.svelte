@@ -15,22 +15,22 @@
             document.body.classList.remove("light");
             document.body.classList.add("dark");
             localStorage.setItem("theme", "dark");
-            $theme = "dark";
+            theme.set("dark");
         } else {
             document.body.classList.remove("dark");
             document.body.classList.add("light");
             localStorage.setItem("theme", "light");
-            $theme = "light";
+            theme.set("light");
         }
     };
     const toggleTheme = () => {
         const stored = localStorage.getItem("theme");
         if (stored === "dark") {
             localStorage.setItem("theme", "light");
-            $theme = "light";
+            theme.set("light");
         } else {
             localStorage.setItem("theme", "dark");
-            $theme = "dark";
+            theme.set("dark");
         }
         applyTheme();
     };
