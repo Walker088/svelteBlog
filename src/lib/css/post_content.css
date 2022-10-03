@@ -1,8 +1,8 @@
 
 .post-content p {
-    margin: .75rem 0;
-    font-size: 1.2rem;
-    line-height: 2rem;
+    margin: 0.75rem 0;
+    font-size: 1.3rem;
+    line-height: 2.2rem;
 }
 
 .post-content h2 {
@@ -12,25 +12,26 @@
 }
 
 .post-content h3 {
-    font-size: 1.4rem;
+    font-size: 1.5rem;
     font-weight: 600;
     margin: 2rem 0 .3rem;
 }
 
 .post-content h4 {
-    font-size: 1.2rem;
+    font-size: 1.3rem;
     font-weight: 600;
     margin: 2rem 0 .3rem;
 }
 
 .post-content pre {
     overflow-x: auto;
-    background-color: #1C1E26;
+    background-color: #f7f7f7;
     padding: 1rem;
 }
 
 .post-content a {
     color: #00c2c2;
+    font-size: 1.2rem;
 }
 
 .post-content img {
@@ -43,4 +44,11 @@
     height: auto;
     width: auto;
     box-shadow: var(--image-shadow);
+}
+
+
+@media all {
+    body.dark .post-content pre {
+        background-color: #1C1E26;
+    }
 }
