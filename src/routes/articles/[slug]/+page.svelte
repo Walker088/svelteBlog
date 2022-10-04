@@ -15,6 +15,9 @@
     let article = data.article || {};
     const badegeOpts = ["bg-primary", "bg-success", "bg-danger", "bg-warning"];
 
+    const GISCUS_REPO = import.meta.env.VITE_GISCUS_REPO;
+    const GISCUS_REPO_ID = import.meta.env.VITE_GISCUS_REPO_ID;
+    const GISCUS_CATEGORYID = import.meta.env.VITE_GISCUS_CATEGORYID;
     $: giscus_theme = $theme === "dark" ? "dark_dimmed" : "light";
 </script>
 
@@ -45,10 +48,10 @@
 
     <div>
         <Giscus bind:id={article.post_title}
-            repo="Walker088/blog.walker088.comments"
-            repoId="R_kgDOIH1ghw"
+            repo={GISCUS_REPO}
+            repoId={GISCUS_REPO_ID}
             category="Announcements"
-            categoryId="DIC_kwDOIH1gh84CRxdq"
+            categoryId={GISCUS_CATEGORYID}
             mapping="pathname"
             reactionsEnabled="1"
             emitMetadata="1"
