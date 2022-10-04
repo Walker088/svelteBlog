@@ -22,7 +22,7 @@ export async function GetPublishedPosts() {
     const posts = await db.prepare(query).all().map(p => {
         const rendered = markdownCvt.render(p.post_content);
         const parsed = parse(rendered);
-        const post_preview = parsed.querySelector('p').structuredText;
+        const post_preview = parsed.querySelector('p') ? parsed.querySelector('p').structuredText : "";
         const { ['post_content']: post_content, ...rest } = p;
         return {...rest, post_preview};
     });
