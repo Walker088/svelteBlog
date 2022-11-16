@@ -61,7 +61,7 @@
 
 <div class="container">
 	<div class="card col-sm-12 mb-3" name="filters">
-		<div class="card-header" on:click="{toggleFilters}">Filters</div>
+		<div class="card-header" on:click="{toggleFilters}" on:keypress={toggleFilters}>Filters</div>
 		{#if isFiltersVisible}
 		<div class="card-body">
 			<form class="d-flex flex-column">

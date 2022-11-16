@@ -19,7 +19,7 @@
 
 				{#if cv_path}
 				<li class:active={$page.url.pathname === cv_path}>
-					<a href="{cv_path}" target="_blank">CV</a>
+					<a href="{cv_path}" target="_blank" rel="noopener noreferrer">CV</a>
 				</li>
 				{/if}
 

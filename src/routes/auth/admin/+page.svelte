@@ -110,7 +110,13 @@
 
 	<form class="my-3" on:submit|preventDefault={handleUpdateProfile}>
 		<div class="card">
-			<div class="card-header" on:click="{() => showProfileCard = !showProfileCard}"><i class="bi bi-mailbox me-2"></i> Update Profile Bio</div>
+			<div
+				class="card-header"
+				on:click="{() => showProfileCard = !showProfileCard}"
+				on:keypress="{() => showProfileCard = !showProfileCard}"
+			>
+				<i class="bi bi-mailbox me-2"></i> Update Profile Bio
+			</div>
 			{#if showProfileCard}
 			<div transition:fade class="card-body" >
 				<div class="mb-2">
@@ -139,7 +145,11 @@
 	</form>
 
 	<div class="card">
-		<div class="card-header" on:click="{() => showArticlesCard = !showArticlesCard}">
+		<div
+			class="card-header" 
+			on:click="{() => showArticlesCard = !showArticlesCard}"
+			on:keypress="{() => showArticlesCard = !showArticlesCard}"
+		>
 			<i class="bi bi-mailbox me-2"></i> Articles 
 			<a href="/auth/editor" class="btn btn-xs btn-info ms-2 mb-1" ><i class="bi bi-pencil-square"></i> Create New Post</a>
 		</div>

@@ -39,6 +39,6 @@
     });
 </script>
 
-<div class="d-flex align-items-center" on:click={toggleTheme}>
+<div class="d-flex align-items-center" on:click={toggleTheme} on:keypress={toggleTheme}>
     <span class="navbar-brand fs-5">{@html themeIcons}</span>
 </div>
