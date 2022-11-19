@@ -9,7 +9,7 @@
   },
   "devDependencies": {
     "@sveltejs/adapter-node": "1.0.0-next.100",
-    "@sveltejs/kit": "1.0.0-next.548",
+    "@sveltejs/kit": "1.0.0-next.553",
     "svelte": "^3.53.1",
     "vite": "^3.2.4"
   },
@@ -30,6 +30,6 @@
     "sharp": "^0.31.2",
     "svelte-multiselect": "^6.1.0",
     "svelte-simple-datatables": "^0.2.3",
-    "sweetalert2": "^11.6.8"
+    "sweetalert2": "^11.6.9"
   }
 }
